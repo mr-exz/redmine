@@ -152,6 +152,10 @@ fr:
         earlier_than_minimum_start_date: "ne peut pas être antérieure au %{date} à cause des demandes qui précèdent"
         not_a_regexp: "n'est pas une expression regulière valide"
         open_issue_with_closed_parent: "Une demande ouverte ne peut pas être rattachée à une demande fermée"
+        must_contain_uppercase: "must contain uppercase letters (A-Z)"
+        must_contain_lowercase: "must contain lowercase letters (a-z)"
+        must_contain_digits: "must contain digits (0-9)"
+        must_contain_special_chars: "must contain special characters (!, $, %, ...)"
 
   actionview_instancetag_blank_option: Choisir
 
@@ -193,7 +197,6 @@ fr:
   notice_failed_to_save_issues: "%{count} demande(s) sur les %{total} sélectionnées n'ont pas pu être mise(s) à jour : %{ids}."
   notice_failed_to_save_time_entries: "%{count} temps passé(s) sur les %{total} sélectionnés n'ont pas pu être mis à jour: %{ids}."
   notice_failed_to_save_members: "Erreur lors de la sauvegarde des membres: %{errors}."
-  notice_no_issue_selected: "Aucune demande sélectionnée ! Cochez les demandes que vous voulez mettre à jour."
   notice_account_pending: "Votre compte a été créé et attend l'approbation de l'administrateur."
   notice_default_data_loaded: Paramétrage par défaut chargé avec succès.
   notice_unable_delete_version: Impossible de supprimer cette version.
@@ -224,14 +227,14 @@ fr:
   error_issue_done_ratios_not_updated: L'avancement des demandes n'a pas pu être mis à jour.
   error_workflow_copy_source: 'Veuillez sélectionner un tracker et/ou un rôle source'
   error_workflow_copy_target: 'Veuillez sélectionner les trackers et rôles cibles'
-  error_unable_delete_issue_status: Impossible de supprimer le statut de demande
+  error_unable_delete_issue_status: Impossible de supprimer le statut de demande (%{value})
   error_unable_to_connect: Connexion impossible (%{value})
   error_attachment_too_big: Ce fichier ne peut pas être attaché car il excède la taille maximale autorisée (%{max_size})
   error_session_expired: "Votre session a expiré. Veuillez vous reconnecter."
   warning_attachments_not_saved: "%{count} fichier(s) n'ont pas pu être sauvegardés."
   error_password_expired: "Votre mot de passe a expiré ou nécessite d'être changé."
   error_invalid_file_encoding: "Le fichier n'est pas un fichier %{encoding} valide"
-  error_invalid_csv_file_or_settings: "Le fichier n'est pas un fichier CSV ou n'est pas conforme aux paramètres sélectionnés"
+  error_invalid_csv_file_or_settings: "Le fichier n'est pas un fichier CSV ou n'est pas conforme aux paramètres sélectionnés (%{value})"
   error_can_not_read_import_file: "Une erreur est survenue lors de la lecture du fichier à importer"
   error_attachment_extension_not_allowed: "L'extension %{extension} n'est pas autorisée"
   error_ldap_bind_credentials: "Identifiant ou mot de passe LDAP incorrect"
@@ -337,7 +340,7 @@ fr:
   field_is_filter: Utilisé comme filtre
   field_issue_to: Demande liée
   field_delay: Retard
-  field_assignable: Demandes assignables à ce rôle
+  field_assignable: Demandes assignables aux utilisateurs ayant ce rôle
   field_redirect_existing_links: Rediriger les liens existants
   field_estimated_hours: Temps estimé
   field_column_names: Colonnes
@@ -611,7 +614,6 @@ fr:
   label_enumeration_new: Nouvelle valeur
   label_information: Information
   label_information_plural: Informations
-  label_please_login: Identification
   label_register: S'enregistrer
   label_login_with_open_id_option: S'authentifier avec OpenID
   label_password_lost: Mot de passe perdu
@@ -630,7 +632,6 @@ fr:
   label_last_login: Dernière connexion
   label_registered_on: Inscrit le
   label_activity: Activité
-  label_overall_activity: Activité globale
   label_user_activity: "Activité de %{value}"
   label_new: Nouveau
   label_logged_as: Connecté en tant que
@@ -742,7 +743,6 @@ fr:
   label_between: entre
   label_in: dans
   label_today: aujourd'hui
-  label_all_time: toute la période
   label_yesterday: hier
   label_this_week: cette semaine
   label_last_week: la semaine dernière
@@ -810,7 +810,6 @@ fr:
   label_issue_tracking: Suivi des demandes
   label_spent_time: Temps passé
   label_total_spent_time: Temps passé total
-  label_overall_spent_time: Temps passé global
   label_f_hour: "%{value} heure"
   label_f_hour_plural: "%{value} heures"
   label_f_hour_short: "%{value} h"
@@ -953,7 +952,6 @@ fr:
   label_completed_versions: Versions passées
   label_search_for_watchers: Rechercher des observateurs
   label_session_expiration: Expiration des sessions
-  label_show_closed_projects: Voir les projets fermés
   label_status_transitions: Changements de statut
   label_fields_permissions: Permissions sur les champs
   label_readonly: Lecture
@@ -1028,6 +1026,8 @@ fr:
   label_font_monospace: Police non proportionnelle
   label_font_proportional: Police proportionnelle
   label_last_notes: Dernières notes
+  label_trackers_description: Description des trackers
+  label_open_trackers_description: Afficher la description des trackers
 
   button_login: Connexion
   button_submit: Soumettre
@@ -1073,7 +1073,6 @@ fr:
   button_update: Mettre à jour
   button_configure: Configurer
   button_quote: Citer
-  button_duplicate: Dupliquer
   button_show: Afficher
   button_hide: Cacher
   button_edit_section: Modifier cette section
@@ -1100,7 +1099,6 @@ fr:
 
   text_select_mail_notifications: Actions pour lesquelles une notification par e-mail est envoyée
   text_regexp_info: ex. ^[A-Z0-9]+$
-  text_min_max_length_info: 0 pour aucune restriction
   text_project_destroy_confirmation: Êtes-vous sûr de vouloir supprimer ce projet et toutes ses données ?
   text_subprojects_destroy_warning: "Ses sous-projets : %{value} seront également supprimés."
   text_workflow_edit: Sélectionner un tracker et un rôle pour éditer le workflow
@@ -1113,7 +1111,7 @@ fr:
   text_tip_issue_begin_day: tâche commençant ce jour
   text_tip_issue_end_day: tâche finissant ce jour
   text_tip_issue_begin_end_day: tâche commençant et finissant ce jour
-  text_project_identifier_info: 'Seuls les lettres minuscules (a-z), chiffres, tirets et tirets bas sont autorisés, doit commencer par une minuscule.<br />Un fois sauvegardé, l''identifiant ne pourra plus être modifié.'
+  text_project_identifier_info: 'Seuls les lettres minuscules (a-z), chiffres, tirets et tirets bas sont autorisés.<br />Un fois sauvegardé, l''identifiant ne pourra plus être modifié.'
   text_caracters_maximum: "%{count} caractères maximum."
   text_caracters_minimum: "%{count} caractères minimum."
   text_length_between: "Longueur comprise entre %{min} et %{max} caractères."
@@ -1140,13 +1138,14 @@ fr:
   text_default_administrator_account_changed: Compte administrateur par défaut changé
   text_file_repository_writable: Répertoire de stockage des fichiers accessible en écriture
   text_plugin_assets_writable: Répertoire public des plugins accessible en écriture
-  text_rmagick_available: Bibliothèque RMagick présente (optionnelle)
+  text_minimagick_available: Bibliothèque MiniMagick présente (optionnelle)
   text_convert_available: Binaire convert de ImageMagick présent (optionel)
   text_destroy_time_entries_question: "%{hours} heures ont été enregistrées sur les demandes à supprimer. Que voulez-vous faire ?"
   text_destroy_time_entries: Supprimer les heures
   text_assign_time_entries_to_project: Reporter les heures sur le projet
   text_reassign_time_entries: 'Reporter les heures sur cette demande:'
   text_user_wrote: "%{value} a écrit :"
+  text_user_wrote_in: "%{value} a écrit  (%{link}):"
   text_enumeration_destroy_question: "La valeur « %{name} » est affectée à %{count} objet(s)."
   text_enumeration_category_reassign_to: 'Réaffecter les objets à cette valeur:'
   text_email_delivery_not_configured: "L'envoi de mail n'est pas configuré, les notifications sont désactivées.\nConfigurez votre serveur SMTP dans config/configuration.yml et redémarrez l'application pour les activer."
@@ -1247,4 +1246,159 @@ fr:
   label_ldaps_verify_peer: LDAPS
   label_ldaps_warning: "Il est recommandé d'utiliser une connexion LDPAS avec vérification du certificat pour empêcher toute interception des données durant la procédure d'authentification."
   label_nothing_to_preview: "Aucun texte à prévisualiser"
-  error_token_expired: This password recovery link has expired, please try again.
+  error_token_expired: "Ce lien de récupération de votre mot de passe a expiré, veuillez recommencer."
+  error_spent_on_future_date: "Impossible d'enregistrer un temps passé sur une date future"
+  setting_timelog_accept_future_dates: "Autoriser la saisie de temps sur une date future"
+  label_delete_link_to_subtask: "Supprimer la relation avec la sous-tâche"
+  error_not_allowed_to_log_time_for_other_users: "Vous n'êtes pas autorisé à saisir le temps passé pour d'autres utilisateurs"
+  permission_log_time_for_other_users: "Saisir le temps passé pour d'autres utilisateurs"
+  label_inherited_from_parent_project: "Hérité du projet parent"
+  label_inherited_from_group: "Hérité du groupe %{name}"
+  label_tomorrow: demain
+  label_next_week: semaine prochaine
+  label_next_month: mois prochain
+  text_role_no_workflow: "Aucun workflow défini pour ce rôle"
+  text_status_no_workflow: "Aucun tracker n'utilise ce statut dans le workflow"
+  setting_mail_handler_preferred_body_part: "Partie privilégiée des messages multipart (HTML)"
+  setting_show_status_changes_in_mail_subject: "Inclure les changements de statut des demandes dans le sujet des notifications"
+  label_preferred_body_part_text: "Texte"
+  label_preferred_body_part_html: "HTML (expérimental)"
+  field_parent_issue_subject: "Sujet de la demande parent"
+  permission_edit_own_issues: "Modifier ses propres demandes"
+  text_select_apply_tracker: "Sélectionner un tracker"
+  label_updated_issues: "Demandes mises à jour"
+  text_avatar_server_config_html: "Le serveur d'avatars actuel est <a href=\"%{url}\">%{url}</a>. Vous pouvez le configurer dans config/configuration.yml."
+  setting_gantt_months_limit: "Nombre maximum de mois affichés sur le gantt"
+  permission_import_time_entries: "Importer des temps passés"
+  label_import_notifications: "Envoyer les notifications durant l'import"
+  text_gs_available: "Support PDF ImageMagick disponible (optionnel)"
+  field_recently_used_projects: "Nombre de projets consultés récemment affichés dans le menu"
+  label_optgroup_bookmarks: "Favoris"
+  label_optgroup_others: "Autres projets"
+  label_optgroup_recents: "Consultés récemment"
+  button_project_bookmark: "Ajouter aux favoris"
+  button_project_bookmark_delete: "Retirer des favoris"
+  field_history_default_tab: "Onglet par défaut de l'historique d'une demande"
+  label_issue_history_properties: "Changements"
+  label_issue_history_notes: "Notes"
+  label_last_tab_visited: "Dernier onglet visité"
+  field_unique_id: "ID unique"
+  text_no_subject: "sans sujet"
+  setting_password_required_char_classes: "Caractères requis pour les mots de passe"
+  label_password_char_class_uppercase: "lettres majuscules"
+  label_password_char_class_lowercase: "lettres miniscules"
+  label_password_char_class_digits: "chiffres"
+  label_password_char_class_special_chars: "caractères spéciaux"
+  text_characters_must_contain: "Doit contenir les types de caractères suivants : %{character_classes}."
+  label_starts_with: "commence par"
+  label_ends_with: "se termine par"
+  label_issue_fixed_version_updated: "Version cible mise à jour"
+  setting_project_list_defaults: "Affichage par défaut de la liste des projets"
+  label_display_type: "Affichage"
+  label_display_type_list: "Liste"
+  label_display_type_board: "Tableau"
+  label_my_bookmarks: "Favoris"
+  label_import_time_entries: "Importer des temps passés"
+  field_toolbar_language_options: Code highlighting toolbar languages
+  label_user_mail_notify_about_high_priority_issues_html: Also notify me about issues
+    with a priority of <em>%{prio}</em> or higher
+  label_assign_to_me: Assign to me
+  notice_issue_not_closable_by_open_tasks: This issue cannot be closed because it has
+    at least one open subtask.
+  notice_issue_not_closable_by_blocking_issue: This issue cannot be closed because it
+    is blocked by at least one open issue.
+  notice_issue_not_reopenable_by_closed_parent_issue: This issue cannot be reopened
+    because its parent issue is closed.
+  error_bulk_download_size_too_big: These attachments cannot be bulk downloaded because
+    the total file size exceeds the maximum allowed size (%{max_size})
+  setting_bulk_download_max_size: Maximum total size for bulk download
+  label_download_all_attachments: Download all files
+  error_attachments_too_many: This file cannot be uploaded because it exceeds the maximum
+    number of files that can be attached simultaneously (%{max_number_of_files})
+  setting_email_domains_allowed: Allowed email domains
+  setting_email_domains_denied: Disallowed email domains
+  field_passwd_changed_on: Password last changed
+  label_relations_mapping: Relations mapping
+  label_import_users: Import users
+  label_days_to_html: "%{days} days up to %{date}"
+  setting_twofa: Two-factor authentication
+  label_optional: optional
+  label_required_lower: required
+  button_disable: Disable
+  twofa__totp__name: Authenticator app
+  twofa__totp__text_pairing_info_html: Scan this QR code or enter the plain text key
+    into a TOTP app (e.g. <a href="https://support.google.com/accounts/answer/1066447">Google
+    Authenticator</a>, <a href="https://authy.com/download/">Authy</a>, <a href="https://guide.duo.com/third-party-accounts">Duo
+    Mobile</a>) and enter the code in the field below to activate two-factor authentication.
+  twofa__totp__label_plain_text_key: Plain text key
+  twofa__totp__label_activate: Enable authenticator app
+  twofa_currently_active: 'Currently active: %{twofa_scheme_name}'
+  twofa_not_active: Not activated
+  twofa_label_code: Code
+  twofa_hint_disabled_html: Setting <strong>%{label}</strong> will deactivate and unpair
+    two-factor authentication devices for all users.
+  twofa_hint_required_html: Setting <strong>%{label}</strong> will require all users
+    to set up two-factor authentication at their next login.
+  twofa_label_setup: Enable two-factor authentication
+  twofa_label_deactivation_confirmation: Disable two-factor authentication
+  twofa_notice_select: 'Please select the two-factor scheme you would like to use:'
+  twofa_warning_require: The administrator requires you to enable two-factor authentication.
+  twofa_activated: Two-factor authentication successfully enabled. It is recommended
+    to <a data-method="post" href="%{bc_path}">generate backup codes</a> for your account.
+  twofa_deactivated: Two-factor authentication disabled.
+  twofa_mail_body_security_notification_paired: Two-factor authentication successfully
+    enabled using %{field}.
+  twofa_mail_body_security_notification_unpaired: Two-factor authentication disabled
+    for your account.
+  twofa_mail_body_backup_codes_generated: New two-factor authentication backup codes
+    generated.
+  twofa_mail_body_backup_code_used: A two-factor authentication backup code has been
+    used.
+  twofa_invalid_code: Code is invalid or outdated.
+  twofa_label_enter_otp: Please enter your two-factor authentication code.
+  twofa_too_many_tries: Too many tries.
+  twofa_resend_code: Resend code
+  twofa_code_sent: An authentication code has been sent to you.
+  twofa_generate_backup_codes: Generate backup codes
+  twofa_text_generate_backup_codes_confirmation: This will invalidate all existing backup
+    codes and generate new ones. Would you like to continue?
+  twofa_notice_backup_codes_generated: Your backup codes have been generated.
+  twofa_warning_backup_codes_generated_invalidated: New backup codes have been generated.
+    Your existing codes from %{time} are now invalid.
+  twofa_label_backup_codes: Two-factor authentication backup codes
+  twofa_text_backup_codes_hint: Use these codes instead of a one-time password should
+    you not have access to your second factor. Each code can only be used once. It is
+    recommended to print and store them in a safe place.
+  twofa_text_backup_codes_created_at: Backup codes generated %{datetime}.
+  twofa_backup_codes_already_shown: Backup codes cannot be shown again, please <a data-method="post"
+    href="%{bc_path}">generate new backup codes</a> if required.
+  error_can_not_execute_macro_html: Error executing the <strong>%{name}</strong> macro
+    (%{error})
+  error_macro_does_not_accept_block: This macro does not accept a block of text
+  error_childpages_macro_no_argument: With no argument, this macro can be called from
+    wiki pages only
+  error_circular_inclusion: Circular inclusion detected
+  error_page_not_found: Page not found
+  error_filename_required: Filename required
+  error_invalid_size_parameter: Invalid size parameter
+  error_attachment_not_found: Attachment %{name} not found
+  permission_delete_project: Delete the project
+  field_twofa_scheme: Two-factor authentication scheme
+  text_user_destroy_confirmation: Are you sure you want to delete this user and remove
+    all references to them? This cannot be undone. Often, locking a user instead of
+    deleting them is the better solution. To confirm, please enter their login (%{login})
+    below.
+  text_project_destroy_enter_identifier: To confirm, please enter the project's identifier
+    (%{identifier}) below.
+  button_add_subtask: Add subtask
+  notice_invalid_watcher: 'Invalid watcher: User will not receive any notifications
+    because it does not have access to view this object.'
+  button_fetch_changesets: Fetch commits
+  permission_view_message_watchers: View message watchers list
+  permission_add_message_watchers: Add message watchers
+  permission_delete_message_watchers: Delete message watchers
+  label_message_watchers: Watchers
+  button_copy_link: Copy link
+  error_invalid_authenticity_token: Invalid form authenticity token.
+  error_query_statement_invalid: An error occurred while executing the query and has
+    been logged. Please report this error to your Redmine administrator.

@@ -14,8 +14,16 @@
     <a href="#" class="submenu"><%= l(:field_status) %></a>
     <ul>
     <% @allowed_statuses.each do |s| -%>
-        <li><%= context_menu_link s.name, bulk_update_issues_path(:ids => @issue_ids, :issue => {:status_id => s}, :back_url => @back), :method => :post,
-                                  :selected => (@issue && s == @issue.status), :disabled => !@can[:edit] %></li>
+        <li>
+          <%= context_menu_link(
+                s.name,
+                bulk_update_issues_path(
+                  :ids => @issue_ids, :issue => {:status_id => s}, :back_url => @back
+                ),
+                :method => :post,
+                :selected => (@issue && s == @issue.status), :disabled => !@can[:edit]
+              ) %>
+        </li>
     <% end -%>
     </ul>
   </li>
@@ -104,7 +112,7 @@
   <% end %>
 
   <% @options_by_custom_field.each do |field, options| %>
-    <li class="folder cf_<%= field.id %>">
+    <li class="folder <%= field.css_classes %>">
       <a href="#" class="submenu"><%= field.name %></a>
       <ul>
       <% options.each do |text, value| %>
@@ -134,7 +142,7 @@
 <% end %>
 
 <% unless @issue %>
-  <li><%= context_menu_link l(:button_filter), _project_issues_path(@project, :set_filter => 1, :status_id => "*", :issue_id => @issue_ids.join(",")),
+  <li><%= context_menu_link l(:button_filter), _project_issues_path(@project, :set_filter => 1, :status_id => "*", :issue_id => @issue_ids.join(","), :c => @columns),
           :class => 'icon icon-list' %></li>
 <% end %>
 
@@ -143,9 +151,15 @@
   <li><%= context_menu_link l(:button_log_time), new_issue_time_entry_path(@issue),
           :class => 'icon icon-time-add' %></li>
   <% end %>
+  <% if @can[:add_subtask] -%>
+  <li><%= context_menu_link l(:button_add_subtask), url_for_new_subtask(@issue),
+          :class => 'icon icon-add' %></li>
+  <% end %>
+  <li><%= copy_object_url_link(issue_url(@issue)) %></li>
   <li><%= context_menu_link l(:button_copy), project_copy_issue_path(@project, @issue),
           :class => 'icon icon-copy', :disabled => !@can[:copy] %></li>
 <% else %>
+  <li><%= copy_object_url_link(_project_issues_url(@project, set_filter: 1, status_id: '*', issue_id: @issue_ids.join(','))) %></li>
   <li><%= context_menu_link l(:button_copy), bulk_edit_issues_path(:ids => @issue_ids, :copy => '1'),
                           :class => 'icon icon-copy', :disabled => !@can[:copy] %></li>
 <% end %>

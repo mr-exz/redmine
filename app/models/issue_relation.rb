@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Redmine - project management software
-# Copyright (C) 2006-2017  Jean-Philippe Lang
+# Copyright (C) 2006-2021  Jean-Philippe Lang
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -47,30 +49,30 @@ class IssueRelation < ActiveRecord::Base
   TYPE_COPIED_FROM  = "copied_from"
 
   TYPES = {
-    TYPE_RELATES =>     { :name => :label_relates_to, :sym_name => :label_relates_to,
-                          :order => 1, :sym => TYPE_RELATES },
-    TYPE_DUPLICATES =>  { :name => :label_duplicates, :sym_name => :label_duplicated_by,
-                          :order => 2, :sym => TYPE_DUPLICATED },
-    TYPE_DUPLICATED =>  { :name => :label_duplicated_by, :sym_name => :label_duplicates,
-                          :order => 3, :sym => TYPE_DUPLICATES, :reverse => TYPE_DUPLICATES },
-    TYPE_BLOCKS =>      { :name => :label_blocks, :sym_name => :label_blocked_by,
-                          :order => 4, :sym => TYPE_BLOCKED },
-    TYPE_BLOCKED =>     { :name => :label_blocked_by, :sym_name => :label_blocks,
-                          :order => 5, :sym => TYPE_BLOCKS, :reverse => TYPE_BLOCKS },
-    TYPE_PRECEDES =>    { :name => :label_precedes, :sym_name => :label_follows,
-                          :order => 6, :sym => TYPE_FOLLOWS },
-    TYPE_FOLLOWS =>     { :name => :label_follows, :sym_name => :label_precedes,
-                          :order => 7, :sym => TYPE_PRECEDES, :reverse => TYPE_PRECEDES },
-    TYPE_COPIED_TO =>   { :name => :label_copied_to, :sym_name => :label_copied_from,
-                          :order => 8, :sym => TYPE_COPIED_FROM },
-    TYPE_COPIED_FROM => { :name => :label_copied_from, :sym_name => :label_copied_to,
-                          :order => 9, :sym => TYPE_COPIED_TO, :reverse => TYPE_COPIED_TO }
+    TYPE_RELATES =>     {:name => :label_relates_to, :sym_name => :label_relates_to,
+                         :order => 1, :sym => TYPE_RELATES},
+    TYPE_DUPLICATES =>  {:name => :label_duplicates, :sym_name => :label_duplicated_by,
+                         :order => 2, :sym => TYPE_DUPLICATED},
+    TYPE_DUPLICATED =>  {:name => :label_duplicated_by, :sym_name => :label_duplicates,
+                         :order => 3, :sym => TYPE_DUPLICATES, :reverse => TYPE_DUPLICATES},
+    TYPE_BLOCKS =>      {:name => :label_blocks, :sym_name => :label_blocked_by,
+                         :order => 4, :sym => TYPE_BLOCKED},
+    TYPE_BLOCKED =>     {:name => :label_blocked_by, :sym_name => :label_blocks,
+                         :order => 5, :sym => TYPE_BLOCKS, :reverse => TYPE_BLOCKS},
+    TYPE_PRECEDES =>    {:name => :label_precedes, :sym_name => :label_follows,
+                         :order => 6, :sym => TYPE_FOLLOWS},
+    TYPE_FOLLOWS =>     {:name => :label_follows, :sym_name => :label_precedes,
+                         :order => 7, :sym => TYPE_PRECEDES, :reverse => TYPE_PRECEDES},
+    TYPE_COPIED_TO =>   {:name => :label_copied_to, :sym_name => :label_copied_from,
+                         :order => 8, :sym => TYPE_COPIED_FROM},
+    TYPE_COPIED_FROM => {:name => :label_copied_from, :sym_name => :label_copied_to,
+                         :order => 9, :sym => TYPE_COPIED_TO, :reverse => TYPE_COPIED_TO}
   }.freeze
 
   validates_presence_of :issue_from, :issue_to, :relation_type
   validates_inclusion_of :relation_type, :in => TYPES.keys
   validates_numericality_of :delay, :allow_nil => true
-  validates_uniqueness_of :issue_to_id, :scope => :issue_from_id
+  validates_uniqueness_of :issue_to_id, :scope => :issue_from_id, :case_sensitive => true
   validate :validate_issue_relation
 
   before_save :handle_issue_order
@@ -78,17 +80,16 @@ class IssueRelation < ActiveRecord::Base
   after_destroy :call_issues_relation_removed_callback
 
   safe_attributes 'relation_type',
-    'delay',
-    'issue_to_id'
+                  'delay',
+                  'issue_to_id'
 
   def safe_attributes=(attrs, user=User.current)
     if attrs.respond_to?(:to_unsafe_hash)
       attrs = attrs.to_unsafe_hash
     end
-
     return unless attrs.is_a?(Hash)
-    attrs = attrs.deep_dup
 
+    attrs = attrs.deep_dup
     if issue_id = attrs.delete('issue_to_id')
       if issue_id.to_s.strip.match(/\A#?(\d+)\z/)
         issue_id = $1.to_i
@@ -150,9 +151,11 @@ class IssueRelation < ActiveRecord::Base
   end
 
   def label_for(issue)
-    TYPES[relation_type] ?
-        TYPES[relation_type][(self.issue_from_id == issue.id) ? :name : :sym_name] :
-        :unknow
+    if TYPES[relation_type]
+      TYPES[relation_type][(self.issue_from_id == issue.id) ? :name : :sym_name]
+    else
+      :unknow
+    end
   end
 
   def to_s(issue=nil)

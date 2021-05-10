@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Redmine - project management software
-# Copyright (C) 2006-2017  Jean-Philippe Lang
+# Copyright (C) 2006-2021  Jean-Philippe Lang
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -16,31 +18,38 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 require 'diff'
-require 'enumerator'
 
 class WikiPage < ActiveRecord::Base
   include Redmine::SafeAttributes
 
   belongs_to :wiki
-  has_one :content, :class_name => 'WikiContent', :foreign_key => 'page_id', :dependent => :destroy
-  has_one :content_without_text, lambda {without_text.readonly}, :class_name => 'WikiContent', :foreign_key => 'page_id'
+  has_one :content, :class_name => 'WikiContent', :foreign_key => 'page_id',
+          :dependent => :destroy
+  has_one :content_without_text, lambda {without_text.readonly},
+          :class_name => 'WikiContent', :foreign_key => 'page_id'
 
   acts_as_attachable :delete_permission => :delete_wiki_pages_attachments
   acts_as_tree :dependent => :nullify, :order => 'title'
 
   acts_as_watchable
-  acts_as_event :title => Proc.new {|o| "#{l(:label_wiki)}: #{o.title}"},
-                :description => :text,
-                :datetime => :created_on,
-                :url => Proc.new {|o| {:controller => 'wiki', :action => 'show', :project_id => o.wiki.project, :id => o.title}}
-
+  acts_as_event(
+    :title => proc {|o| "#{l(:label_wiki)}: #{o.title}"},
+    :description => :text,
+    :datetime => :created_on,
+    :url =>
+      proc do |o|
+        {:controller => 'wiki', :action => 'show',
+         :project_id => o.wiki.project, :id => o.title}
+      end
+  )
   acts_as_searchable :columns => ['title', "#{WikiContent.table_name}.text"],
                      :scope => joins(:content, {:wiki => :project}),
                      :preload => [:content, {:wiki => :project}],
                      :permission => :view_wiki_pages,
                      :project_key => "#{Wiki.table_name}.project_id"
 
-  attr_accessor :redirect_existing_links, :deleted_attachment_ids
+  attr_accessor :redirect_existing_links
+  attr_writer   :deleted_attachment_ids
 
   validates_presence_of :title
   validates_format_of :title, :with => /\A[^,\.\/\?\;\|\s]*\z/
@@ -54,19 +63,19 @@ class WikiPage < ActiveRecord::Base
   after_save :handle_children_move, :delete_selected_attachments
 
   # eager load information about last updates, without loading text
-  scope :with_updated_on, lambda { preload(:content_without_text) }
+  scope :with_updated_on, lambda {preload(:content_without_text)}
 
   # Wiki pages that are protected by default
   DEFAULT_PROTECTED_PAGES = %w(sidebar)
 
   safe_attributes 'parent_id', 'parent_title', 'title', 'redirect_existing_links', 'wiki_id',
-    :if => lambda {|page, user| page.new_record? || user.allowed_to?(:rename_wiki_pages, page.project)}
+                  :if => lambda {|page, user| page.new_record? || user.allowed_to?(:rename_wiki_pages, page.project)}
 
   safe_attributes 'is_start_page',
-    :if => lambda {|page, user| user.allowed_to?(:manage_wiki, page.project)}
+                  :if => lambda {|page, user| user.allowed_to?(:manage_wiki, page.project)}
 
   safe_attributes 'deleted_attachment_ids',
-    :if => lambda {|page, user| page.attachments_deletable?(user)}
+                  :if => lambda {|page, user| page.attachments_deletable?(user)}
 
   def initialize(attributes=nil, *args)
     super
@@ -88,8 +97,8 @@ class WikiPage < ActiveRecord::Base
     if attrs.respond_to?(:to_unsafe_hash)
       attrs = attrs.to_unsafe_hash
     end
-
     return unless attrs.is_a?(Hash)
+
     attrs = attrs.deep_dup
 
     # Project and Tracker must be set before since new_statuses_allowed_to depends on it.
@@ -302,7 +311,7 @@ class WikiAnnotate
     @lines = current_lines.collect {|t| [nil, nil, t]}
     positions = []
     current_lines.size.times {|i| positions << i}
-    while (current.previous)
+    while current.previous
       d = current.previous.text.split(/\r?\n/).diff(current.text.split(/\r?\n/)).diffs.flatten
       d.each_slice(3) do |s|
         sign, line = s[0], s[1]
@@ -323,13 +332,14 @@ class WikiAnnotate
       end
       positions.compact!
       # Stop if every line is annotated
-      break unless @lines.detect { |line| line[0].nil? }
+      break unless @lines.detect {|line| line[0].nil?}
+
       current = current.previous
     end
-    @lines.each { |line|
+    @lines.each do |line|
       line[0] ||= current.version
       # if the last known version is > 1 (eg. history was cleared), we don't know the author
       line[1] ||= current.author if current.version == 1
-    }
+    end
   end
 end

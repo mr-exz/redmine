@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Redmine - project management software
-# Copyright (C) 2006-2017  Jean-Philippe Lang
+# Copyright (C) 2006-2021  Jean-Philippe Lang
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,6 +24,7 @@ class CommentTest < ActiveSupport::TestCase
            :user_preferences, :roles, :members, :member_roles
 
   def setup
+    User.current = nil
     @jsmith = User.find(2)
     @news = News.find(1)
   end

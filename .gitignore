@@ -3,6 +3,7 @@
 /.loadpath
 /.powrc
 /.rvmrc
+/.ruby-version
 /config/additional_environment.rb
 /config/configuration.yml
 /config/database.yml
@@ -13,6 +14,7 @@
 /coverage
 /db/*.db
 /db/*.sqlite3
+/db/*.sqlite3-*
 /db/schema.rb
 /files/*
 /lib/redmine/scm/adapters/mercurial/redminehelper.pyc
@@ -41,3 +43,5 @@
 /Gemfile.lock
 /Gemfile.local
 
+/node_modules
+yarn-error.log

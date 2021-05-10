@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Redmine - project management software
-# Copyright (C) 2006-2017  Jean-Philippe Lang
+# Copyright (C) 2006-2021  Jean-Philippe Lang
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -18,6 +20,8 @@
 class EmailAddress < ActiveRecord::Base
   include Redmine::SafeAttributes
 
+  EMAIL_REGEXP = /\A([^@\s]+)@((?:[-a-z0-9]+\.)+(?:(?:xn--[-a-z0-9]+)|(?:[a-z]{2,})))\z/i
+
   belongs_to :user
 
   after_update :destroy_tokens
@@ -28,10 +32,11 @@ class EmailAddress < ActiveRecord::Base
   after_destroy_commit :deliver_security_notification_destroy
 
   validates_presence_of :address
-  validates_format_of :address, :with => /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i, :allow_blank => true
+  validates_format_of :address, :with => EMAIL_REGEXP, :allow_blank => true
   validates_length_of :address, :maximum => User::MAIL_LENGTH_LIMIT, :allow_nil => true
   validates_uniqueness_of :address, :case_sensitive => false,
     :if => Proc.new {|email| email.address_changed? && email.address.present?}
+  validate :validate_email_domain, :if => proc {|email| email.address.present?}
 
   safe_attributes 'address'
 
@@ -44,6 +49,29 @@ class EmailAddress < ActiveRecord::Base
       false
     else
       super
+    end
+  end
+
+  # Returns true if the email domain is allowed regarding allowed/denied
+  # domains defined in application settings, otherwise false
+  def self.valid_domain?(domain_or_email)
+    denied, allowed =
+      [:email_domains_denied, :email_domains_allowed].map do |setting|
+        Setting.__send__(setting)
+      end
+    domain = domain_or_email.split('@').last
+    return false if denied.present? && domain_in?(domain, denied)
+    return false if allowed.present? && !domain_in?(domain, allowed)
+
+    true
+  end
+
+  # Returns true if domain belongs to domains list.
+  def self.domain_in?(domain, domains)
+    domain = domain.downcase
+    domains = domains.to_s.split(/[\s,]+/) unless domains.is_a?(Array)
+    domains.reject(&:blank?).map(&:downcase).any? do |s|
+      s.start_with?('.') ? domain.end_with?(s) : domain == s
     end
   end
 
@@ -94,7 +122,8 @@ class EmailAddress < ActiveRecord::Base
 
   # generic method to send security notifications for email addresses
   def deliver_security_notification(options={})
-    Mailer.deliver_security_notification(user,
+    Mailer.deliver_security_notification(
+      user,
       User.current,
       options.merge(
         title: :label_my_account,
@@ -111,5 +140,9 @@ class EmailAddress < ActiveRecord::Base
       tokens = ['recovery']
       Token.where(:user_id => user_id, :action => tokens).delete_all
     end
+  end
+
+  def validate_email_domain
+    errors.add(:address, :invalid) unless self.class.valid_domain?(address)
   end
 end

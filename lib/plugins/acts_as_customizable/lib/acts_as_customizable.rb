@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Redmine - project management software
-# Copyright (C) 2006-2017  Jean-Philippe Lang
+# Copyright (C) 2006-2021  Jean-Philippe Lang
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -27,7 +29,7 @@ module Redmine
           return if self.included_modules.include?(Redmine::Acts::Customizable::InstanceMethods)
           cattr_accessor :customizable_options
           self.customizable_options = options
-          has_many :custom_values, lambda {includes(:custom_field).order("#{CustomField.table_name}.position")},
+          has_many :custom_values, lambda {includes(:custom_field)},
                                    :as => :customized,
                                    :inverse_of => :customized,
                                    :dependent => :delete_all,
@@ -144,6 +146,7 @@ module Redmine
           end
           self.custom_values = target_custom_values
           custom_values.each(&:save)
+          touch if !saved_changes? && custom_values.any?(&:saved_changes?)
           @custom_field_values_changed = false
           true
         end

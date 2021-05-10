@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Redmine - project management software
-# Copyright (C) 2006-2017  Jean-Philippe Lang
+# Copyright (C) 2006-2021  Jean-Philippe Lang
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -115,12 +117,13 @@ class IssuesHelperTest < Redmine::HelperTest
   end
 
   test 'show_detail with a start_date attribute should format the dates' do
-    detail = JournalDetail.new(
-               :property  => 'attr',
-               :old_value => '2010-01-01',
-               :value     => '2010-01-31',
-               :prop_key  => 'start_date'
-            )
+    detail =
+      JournalDetail.new(
+        :property  => 'attr',
+        :old_value => '2010-01-01',
+        :value     => '2010-01-31',
+        :prop_key  => 'start_date'
+      )
     with_settings :date_format => '%m/%d/%Y' do
       assert_match "01/31/2010", show_detail(detail, true)
       assert_match "01/01/2010", show_detail(detail, true)
@@ -128,12 +131,13 @@ class IssuesHelperTest < Redmine::HelperTest
   end
 
   test 'show_detail with a due_date attribute should format the dates' do
-    detail = JournalDetail.new(
-              :property  => 'attr',
-              :old_value => '2010-01-01',
-              :value     => '2010-01-31',
-              :prop_key  => 'due_date'
-            )
+    detail =
+      JournalDetail.new(
+        :property  => 'attr',
+        :old_value => '2010-01-01',
+        :value     => '2010-01-31',
+        :prop_key  => 'due_date'
+      )
     with_settings :date_format => '%m/%d/%Y' do
       assert_match "01/31/2010", show_detail(detail, true)
       assert_match "01/01/2010", show_detail(detail, true)
@@ -141,10 +145,18 @@ class IssuesHelperTest < Redmine::HelperTest
   end
 
   test 'show_detail should show old and new values with a project attribute' do
+    User.current = User.find(2)
     detail = JournalDetail.new(:property => 'attr', :prop_key => 'project_id',
                                :old_value => 1, :value => 2)
     assert_match 'eCookbook', show_detail(detail, true)
     assert_match 'OnlineStore', show_detail(detail, true)
+  end
+
+  test 'show_detail with a project attribute should show project ID if project is not visible' do
+    detail = JournalDetail.new(:property => 'attr', :prop_key => 'project_id',
+                               :old_value => 1, :value => 2)
+    assert_match 'eCookbook', show_detail(detail, true)
+    assert_match '2', show_detail(detail, true)
   end
 
   test 'show_detail should show old and new values with a issue status attribute' do
@@ -234,7 +246,7 @@ class IssuesHelperTest < Redmine::HelperTest
     assert_equal "Precedes Bug #1: Cannot print recipes added", show_detail(detail, true)
     str = link_to("Bug #1", "/issues/1", :class => Issue.find(1).css_classes)
     assert_equal "<strong>Precedes</strong> <i>#{str}: Cannot print recipes</i> added",
-                  show_detail(detail, false)
+                 show_detail(detail, false)
   end
 
   def test_show_detail_relation_added_with_inexistant_issue
@@ -316,17 +328,51 @@ class IssuesHelperTest < Redmine::HelperTest
     details << JournalDetail.new(:property => 'cf', :prop_key => field.id.to_s, :old_value => '2', :value => nil)
     details << JournalDetail.new(:property => 'cf', :prop_key => field.id.to_s, :old_value => '3', :value => nil)
 
-    assert_equal [
-      "User Redmine Admin added",
-      "User deleted (Dave Lopper, John Smith)"
-      ], details_to_strings(details, true)
-    assert_equal [
-      "<strong>User</strong> <i>Redmine Admin</i> added",
-      "<strong>User</strong> deleted (<del><i>Dave Lopper, John Smith</i></del>)"
-      ], details_to_strings(details, false)
+    assert_equal(
+      [
+        "User Redmine Admin added",
+        "User deleted (Dave Lopper, John Smith)"
+      ],
+      details_to_strings(details, true)
+    )
+    assert_equal(
+      [
+        "<strong>User</strong> <i>Redmine Admin</i> added",
+        "<strong>User</strong> deleted (<del><i>Dave Lopper, John Smith</i></del>)"
+      ],
+      details_to_strings(details, false)
+    )
   end
 
   def test_find_name_by_reflection_should_return_nil_for_missing_record
     assert_nil find_name_by_reflection('status', 99)
+  end
+
+  def test_issue_due_date_details
+    travel_to Time.parse('2019-06-01 23:00:00 UTC') do
+      User.current = User.first
+      User.current.pref.update_attribute :time_zone, 'UTC'
+      issue = Issue.generate!
+
+      # due date is not set
+      assert_nil issue_due_date_details(issue)
+
+      # due date is set
+      issue.due_date = User.current.today + 5
+      issue.save!
+      assert_equal '06/06/2019 (Due in 5 days)', issue_due_date_details(issue)
+
+      # Don't show "Due in X days" if the issue is closed
+      issue.status = IssueStatus.find_by_is_closed(true)
+      issue.save!
+      assert_equal '06/06/2019', issue_due_date_details(issue)
+    end
+  end
+
+  def test_url_for_new_subtask
+    issue = Issue.find(1)
+    params = {:issue => {:parent_issue_id => issue.id, :tracker_id => issue.tracker.id}}
+    assert_equal new_project_issue_path(issue.project, params),
+                 url_for_new_subtask(issue)
   end
 end
